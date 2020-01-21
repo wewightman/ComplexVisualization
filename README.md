@@ -4,7 +4,7 @@
   *Last Edit:* 2020/01/10
 
 This repository contains my work in visualizing (mostly) mathematics and other cool sciencey things.
-I decided to start this *hobby* project in an attempt to retain what I have learned thoughout my educational career.
+I decided to start this hobby project in an attempt to retain what I have learned thoughout my educational career.
 Inspired by Grant Sanderson, a phenomenal YouTube educator, I want to show people the beauty as well as the practicality of that which is hidden behind layers of unnecissary abstraction. Also. It looks *pretty*.
 
 This work is all done with the Processing Library and is written in Java.
