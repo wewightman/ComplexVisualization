@@ -1,4 +1,13 @@
+// Variables needed to manipulate the graphing space
 Graph graph;
+boolean zoom;
+float delta;
+float axisX;
+float axisY;
+float bufferX;
+float bufferY;
+
+// Variables needed to represent a signal
 Complex[] data;
 Euler[] sins;
 Euler[] simple;
@@ -6,29 +15,38 @@ float[][] circles;
 float[][] simpleCircles;
 int timeSpan;
 int time;
-float delta;
-float axisX;
-float axisY;
 
 void setup() {
-  size(1600, 1000);
-  axisX = 7.5;
-  axisY = 5;
+  // defines the window and graph set
+  size(800, 500);
+  axisX = 6;
+  axisY = 4;
+  graph = new Graph(width, axisX, -axisX, 0.5, height, axisY, -axisY, 0.5);
   
-  graph = new Graph(width, axisX, -axisX, 0.5, height, axisY = 5, -axisY, 0.5);
+  // reads the data
   int numSins = 243;
   data = readTempFile(dataPath("") + "\\house.txt");
   timeSpan = data.length;
   time = 0;
+  
+  // completes a Fourier transform
   sins = fourier(data, numSins);
   sortSins(sins);
   
+  // generates a rough approximation using 10% of sinusoids present
   simple = new Euler[sins.length/10];
   for (int i = 0; i < simple.length; ++i) {
     simple[i] = sins[i];
   }
+  
+  // allocates the points of the aproximations to be graphed
   circles = new float[data.length][2];
   simpleCircles = new float[data.length][2];
+  
+  for (int i = 0; i < data.length; ++i) {
+    circles[i] = calcEnd(sins, i);
+    simpleCircles[i] = calcEnd(simple, i);
+  }
 }
 
 void draw() {
@@ -36,9 +54,6 @@ void draw() {
     time = 0;
     delta *= -1;
   }
-  axisX = circles[time][0];
-  axisY = circles[time][1];
-  //graph = new Graph(width, axisX+0.1, axisX-0.1, 0.5, height, axisY+0.03, axisY-0.03, 0.5);
   background(50, 200, 255);
   graph.drawAxis(true);
   
@@ -51,15 +66,8 @@ void draw() {
     line(x1, y1, x2, y2);
   }
   
-  float[] prevEnd = drawSins(sins, time, graph);
-  
-  circles[time][0] = prevEnd[0];
-  circles[time][1] = prevEnd[1];
-  
-  prevEnd = drawSins(simple, time, graph);
-  
-  simpleCircles[time][0] = prevEnd[0];
-  simpleCircles[time][1] = prevEnd[1];
+  drawSins(sins, time, graph);
+  drawSins(simple, time, graph);
   
   for (int i = 0; i < time + 1; ++i) {
     fill(0);
@@ -72,6 +80,9 @@ void draw() {
   time += 1;
 }
 
+/**
+ * This method reads in a text based data file
+ */
 public Complex[] readTempFile(String filename) {
   Complex[] data = null;
   try {
@@ -142,7 +153,10 @@ public Euler[] fourier(Complex[] data, int N) {
   
   return sins;
 }
-  
+
+/**
+ * This method sorts an array of euler sinusoids from largest magitude to smallest
+ */
 public void sortSins(Euler[] input) {
   // Sorts the sinusoids by magnitude
   for (int i = 0; i < input.length; ++i) {
@@ -156,6 +170,9 @@ public void sortSins(Euler[] input) {
   }
 }
 
+/*
+ * This method draws a set of sinusoids with the previous sinusoids head aligning with the other sinusoids tail
+ */
 public float[] drawSins(Euler[] sins, float time, Graph graph) {
   float[] prevEnd = {0, 0};
   float[] newEnd;
@@ -170,4 +187,20 @@ public float[] drawSins(Euler[] sins, float time, Graph graph) {
   }
   
   return prevEnd;
+}
+
+/**
+ * Calculates the sum of euler sinusoids at a given time
+ */
+public float[] calcEnd(Euler[] sins, float time) {
+  float real = 0;
+  float imag = 0;
+  // Draws each arrow end to end
+  for (int i = 0; i < sins.length; ++i) {
+    Complex sin = sins[i].getTime(time);
+    real += sin.real;
+    imag += sin.imag;
+  }
+ 
+  return new float[]{real,imag};
 }
