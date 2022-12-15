@@ -1,5 +1,5 @@
 # ComplexVisualization
-  *Developed by:* Will Wightman
+  *Developed by:* Wren Wightman
   *Start Date:* 2020/01/10
   *Last Edit:* 2020/01/10
 
